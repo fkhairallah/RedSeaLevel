@@ -94,13 +94,25 @@ bool processMQTTcommand(char* topic, char* message)
   {
     if (strcmp(message,"OFF") == 0) 
       pauseTideUpdate();
-    else
+    else if (strcmp(message,"ON") == 0)
       resumeTideUpdate();
+    // else: unknown command for mqtt_level_command, do nothing or log an error
+    // if (debugMode) {
+    //   console.printf("Unknown command '%s' on topic %s\n", message, mqtt_level_command);
+    // }
     return true;
   }
 
 
   return false;
+}
+
+// publish the level to the mqtt topic
+void publishLevel(float level)
+{
+  char buffer[16];
+  sprintf(buffer, "%.2f", level); // Format as string with 2 decimal places
+  mqtt_client.publish(mqtt_level, buffer, retain);
 }
 
 
@@ -240,4 +252,3 @@ void mqttDisconnect()
 {
   if (mqtt_client.connected()) mqtt_client.disconnect();
 }
-
