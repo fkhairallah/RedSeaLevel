@@ -8,7 +8,7 @@
 #include <PubSubClient.h>
 #include <Preferences.h>
 
-#define VERSION "V0.0" // N.B: document changes in README.md
+#define VERSION "V1.0" // N.B: document changes in README.md
 
 // include Pins
 #ifndef _PINS_H

@@ -40,11 +40,11 @@ void measureDistanceAndUpdateAverage() {
     }
     sample_count++;
     if (debugMode) {
-      console.printf("Measured distance: %.2f cm, Current avg: %.2f cm, Samples: %d\n", distance_cm, current_level, sample_count);
+      console.printf("Measured distance: %.2f cm, Current avg: %.2f cm, Samples: %d\n\r", distance_cm, current_level, sample_count);
     }
   } else {
     if (debugMode) {
-      console.printf("Distance out of range or error: %.2f cm (duration: %ld us)\n", distance_cm, duration);
+      console.printf("Distance out of range or error: %.2f cm (duration: %ld us)\n\r", distance_cm, duration);
     }
   }
 }
@@ -65,7 +65,7 @@ void publishAverageLevel() {
     float current_level_mllw = SEAWALL_MLLW_OFFSET - (current_level * 0.0328084);   // NAVD88 to MLLW conversion
     publishLevel(current_level_mllw);                                             // Publish the average level
     if (debugMode) {
-      console.printf("Publishing average %f ft to MQTT\n", current_level_mllw);
+      console.printf("Publishing average %f ft to MQTT\n\r", current_level_mllw);
     }
 
     // Reset for the next interval ("process restarts")
