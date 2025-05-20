@@ -12,14 +12,12 @@ int secondsWithoutWIFI = 0; // counter the seconds without wifi
 // Hostname, AP name & MQTT clientID
 // define your default values here, if there are different values in config.json, they are overwritten.
 // length should be max size + 1
-char myHostName[64] = "RedTide";
-char deviceLocation[64] = "shelf";
+char myHostName[64] = "SeaLevel";
+char deviceLocation[64] = "Ocean Ridge";
 char mqttServer[64] = "Carbon.local";
 char mqttPort[16] = "1883";
 char mqttUser[64] = "";
 char mqttPwd[64] = "";
-char topLED[16] = "48";
-char bottomLED[16] = "64";
 char NoaaStation[16] = NOAA_DEFAULT_STATION;
 
 // The extra parameters to be configured (can be either global or just in the setup)
@@ -28,8 +26,6 @@ char NoaaStation[16] = NOAA_DEFAULT_STATION;
 WiFiManagerParameter custom_deviceLocation("location", "Device Location", deviceLocation, 64);
 WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqttServer, 40);
 WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqttPort, 5);
-WiFiManagerParameter custom_top_led("topLED", "Top LEDs", topLED, 16);
-WiFiManagerParameter custom_bottom_led("bottomLED", "Bottom LEDs", bottomLED, 16);
 WiFiManagerParameter custom_noaa_station("NoaaStation", "Noaa Station", NoaaStation, 16);
 
 // flag for saving data
@@ -74,8 +70,6 @@ void configureWIFI()
     wifiManager.addParameter(&custom_deviceLocation);
     wifiManager.addParameter(&custom_mqtt_server);
     wifiManager.addParameter(&custom_mqtt_port);
-    wifiManager.addParameter(&custom_top_led);
-    wifiManager.addParameter(&custom_bottom_led);
     wifiManager.addParameter(&custom_noaa_station);
 
     // reset settings - for testing
@@ -226,8 +220,6 @@ void readPreferences() {
   if (prefs.isKey("deviceLocation"))     strcpy(deviceLocation, prefs.getString("deviceLocation").c_str());
   if (prefs.isKey("mqtt_server"))    strcpy(mqttServer, prefs.getString("mqtt_server").c_str());
   if (prefs.isKey("mqtt_port"))    strcpy(mqttPort, prefs.getString("mqtt_port").c_str());
-  if (prefs.isKey("topLED"))    strcpy(topLED, prefs.getString("topLED").c_str());
-  if (prefs.isKey("bottomLED"))    strcpy(bottomLED, prefs.getString("bottomLED").c_str());
   if (prefs.isKey("NoaaStation"))    strcpy(NoaaStation, prefs.getString("NoaaStation").c_str());
 }
 /*
@@ -265,8 +257,6 @@ void savePreferences()
   prefs.putString("deviceLocation",String(deviceLocation));
   prefs.putString("mqtt_server", String(mqttServer));
   prefs.putString("mqtt_port", String(mqttPort));
-  prefs.putString("topLED", String(topLED));
-  prefs.putString("bottomLED", String(bottomLED));
   prefs.putString("NoaaStation", String(NoaaStation));
   if (debugMode) 
     console.println("Preferences saved!");

@@ -92,14 +92,20 @@ bool processMQTTcommand(char* topic, char* message)
   // turn tide on/off
   if (strcmp(topic, mqtt_level_command) == 0)
   {
+    // convert message to uppercase
+    for (int i = 0; message[i]; i++)
+    {
+      message[i] = toupper(message[i]);
+    }
+
     if (strcmp(message,"OFF") == 0) 
       pauseTideUpdate();
     else if (strcmp(message,"ON") == 0)
       resumeTideUpdate();
-    // else: unknown command for mqtt_level_command, do nothing or log an error
-    // if (debugMode) {
-    //   console.printf("Unknown command '%s' on topic %s\n", message, mqtt_level_command);
-    // }
+    else // unknown command for mqtt_level_command, do nothing or log an error
+    if (debugMode) {
+      console.printf("Unknown command '%s' on topic %s\n", message, mqtt_level_command);
+    }
     return true;
   }
 
@@ -151,16 +157,22 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
   {
     if (strcmp(topic, mqtt_debug_set_topic) == 0)
     {
-      if (strcmp(message, "on") == 0)
+      // convert message to uppercase
+      for (int i = 0; message[i]; i++)
+      {
+        message[i] = toupper(message[i]);
+      }
+      if (strcmp(message, "ON") == 0)
       {
         debugMode = true;
         mqtt_client.publish(mqtt_debug_topic, "debug mode enabled");
       }
-      else if (strcmp(message, "off") == 0)
+      else 
       {
         debugMode = false;
         mqtt_client.publish(mqtt_debug_topic, "debug mode disabled");
       }
+      savePreferences();
     }
     else
     {

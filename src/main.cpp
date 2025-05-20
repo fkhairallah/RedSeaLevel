@@ -13,13 +13,13 @@ void measureDistanceAndUpdateAverage() {
   float distance_cm;
 
   // Clears the TRIGP_PIN
-  digitalWrite(TRIGP_PIN, LOW);
+  digitalWrite(TRIG_PIN, LOW);
   delayMicroseconds(2);
 
   // Sets the TRIGP_PIN on HIGH state for 10 micro seconds
-  digitalWrite(TRIGP_PIN, HIGH);
+  digitalWrite(TRIG_PIN, HIGH);
   delayMicroseconds(10);
-  digitalWrite(TRIGP_PIN, LOW);
+  digitalWrite(TRIG_PIN, LOW);
 
   // Reads the ECHO_PIN, returns the sound wave travel time in microseconds
   // Timeout is 1 second by default. Max range ~400cm => ~23300 us.
@@ -60,9 +60,12 @@ void publishAverageLevel() {
   }
 
   if (sample_count > 0) {
-    publishLevel(current_level); // Publish the average level
+    // our seawall, where the measurement is taking place, is, basically, at 0 NAVD88
+    // convert to feet and change offset to MLLW
+    float current_level_mllw = SEAWALL_MLLW_OFFSET - (current_level * 0.0328084);   // NAVD88 to MLLW conversion
+    publishLevel(current_level_mllw);                                             // Publish the average level
     if (debugMode) {
-      console.printf("Publishing average %f cm to MQTT\n", current_level);
+      console.printf("Publishing average %f ft to MQTT\n", current_level_mllw);
     }
 
     // Reset for the next interval ("process restarts")
@@ -97,6 +100,10 @@ void pauseTideUpdate()
 
 void setup()
 {
+  // Setup sensor pins
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  digitalWrite(TRIG_PIN, LOW); // Ensure trigger pin is low initially
 
   // initialize preferences library
   prefs.begin(myHostName, false); // false:: read/write mode
@@ -106,18 +113,11 @@ void setup()
   // setup Console
   setupConsole();
 
-  // Setup sensor pins
-  pinMode(TRIGP_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
-  digitalWrite(TRIGP_PIN, LOW); // Ensure trigger pin is low initially
 
   configureWIFI(); // configure wifi
   configureMQTT(); // configure MQTT (this also calls configureTopics() which sets up mqtt_level)
 
   // Start the measurement and publishing tasks.
-  // This will begin measurements immediately on startup.
-  // If you want it to start paused, you'd skip this call or call pauseTideUpdate()
-  // based on some preference.
   resumeTideUpdate();
 }
 

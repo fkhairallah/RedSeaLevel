@@ -37,7 +37,8 @@ void executeCustomCommands(char* commandString,char* parameterString)
   {
 
     printLocalTime();
-    console.printf("Prefs ledMode=%i,%s MQTT=%s #%s\r\n", prefs.getInt("ledMode"), prefs.getString("deviceLocation"), prefs.getString("mqtt_server"), prefs.getString("topLED"));
+    console.printf("Prefs %s MQTT=%s #%s, NOAA %s\r\n", prefs.getString("deviceLocation"), prefs.getString("mqtt_server"), prefs.getString("mqtt_port"), prefs.getString("NoaaStation"));
+    console.printf("MQTT %s %s\r\n", mqttServer, mqttPort);
   }
 
 
@@ -48,7 +49,6 @@ void executeCustomCommands(char* commandString,char* parameterString)
 
   if (strcmp(commandString, "noaa") == 0) {
     strcpy(NoaaStation, parameterString);
-    //writeConfigToDisk();
     savePreferences();
     console.printf("NOAA station changed to %s\r\n", NoaaStation);
   }
@@ -84,7 +84,7 @@ void handleConsole()
       console.println(VERSION);
       console.printf("Host: %s @", myHostName);
       console.println(WiFi.localIP().toString());
-      console.printf("MQTT Server %s, port: %s, %s, LEDs: %s/%s\r\n", mqttServer, mqttPort, deviceLocation,  topLED,bottomLED);
+      console.printf("MQTT Server %s, port: %s, %s\r\n", mqttServer, mqttPort, deviceLocation);
       console.println("Commands: ?, debug, reset (Factory), reboot, quit");
       console.println(CUSTOM_COMMANDS);
     }
@@ -94,11 +94,11 @@ void handleConsole()
       console.print("Debug mode is now ");
       console.println(debugMode);
       prefs.putBool("debugMode", debugMode);
+      savePreferences();
     }
     if (strcmp(console.commandString, "location") == 0)
     {
       strcpy(deviceLocation, console.parameterString);
-      //writeConfigToDisk();
       savePreferences();
 
       console.printf("location changed to %s\r\n", deviceLocation);
@@ -108,7 +108,6 @@ void handleConsole()
     {
       strcpy(mqttServer, console.parameterString);
       savePreferences();
-      //writeConfigToDisk();
       console.print("MQTT server changed to ");
       console.println(mqttServer);
       mqttDisconnect();
