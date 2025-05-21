@@ -1,7 +1,5 @@
 #include <RedGlobals.h>
-//#include <FS.h> //this needs to be first, or it all crashes and burns...
 #include <WiFiManager.h> //https://github.com/tzapu/WiFiManager
-//#include <SPIFFS.h>
 #include <ArduinoOTA.h>
 
 bool otaInProgress; // flags if OTA is in progress
@@ -10,7 +8,6 @@ int secondsWithoutWIFI = 0; // counter the seconds without wifi
 
 // configuration parameters
 // Hostname, AP name & MQTT clientID
-// define your default values here, if there are different values in config.json, they are overwritten.
 // length should be max size + 1
 char myHostName[64] = "SeaLevel";
 char deviceLocation[64] = "Ocean Ridge";
@@ -46,13 +43,6 @@ void saveConfigCallback()
 void configureWIFI()
 {
 
-    // clean FS, for testing
-    // SPIFFS.format();
-
-    
-    // read configuration from FS json
-    //readConfigFromDisk();
-    //savePreferences();
     // get configuration from NVM
     readPreferences();
 
@@ -72,8 +62,6 @@ void configureWIFI()
     wifiManager.addParameter(&custom_mqtt_port);
     wifiManager.addParameter(&custom_noaa_station);
 
-    // reset settings - for testing
-    // wifiManager.resetSettings();
 
     // set minimu quality of signal so it ignores AP's under that quality
     // defaults to 8%
@@ -115,13 +103,6 @@ void configureWIFI()
     if (debugMode) console.println("connected...yeey! Enabling telnet:)");
     console.enableTelnet(23);
 
-    // // read updated parameters
-    // strcpy(mqttServer, custom_mqtt_server.getValue());
-    // strcpy(mqttPort, custom_mqtt_port.getValue());
-    // strcpy(api_token, custom_api_token.getValue());
-
-    // in this program start the config portal every time.
-    //wifiManager.startConfigPortal();
 
     // and OTA
     configureOTA(myHostName);
@@ -164,58 +145,15 @@ void checkConnection()
       secondsWithoutWIFI = 0;
     }
 
-    //MDNS.update(); // and refresh mDNS
 
 }
 /*
  * ********************************************************************************
 
- read device configuration from config.json in the file system
+ read device configuration from nvm
 
  * ********************************************************************************
 */
-// void readConfigFromDisk()
-// {
-//     if (debugMode) console.println("Reading config...");
-
-//     if (SPIFFS.begin())
-//     {
-//         if (SPIFFS.exists("/config.json"))
-//         {
-//             // file exists, reading and loading
-//             File configFile = SPIFFS.open("/config.json", "r");
-//             if (configFile)
-//             {
-//                 size_t size = configFile.size();
-//                 // Allocate a buffer to store contents of the file.
-//                 std::unique_ptr<char[]> buf(new char[size]);
-
-//                 configFile.readBytes(buf.get(), size);
-//                 DynamicJsonDocument json(1024);
-//                 auto deserializeError = deserializeJson(json, buf.get());
-//                 serializeJson(json, Serial);
-//                 if (!deserializeError)
-//                 { 
-//                   if (json.containsKey("deviceLocation"))  strcpy(deviceLocation, json["deviceLocation"]);
-//                   if (json.containsKey("mqtt_server"))  strcpy(mqttServer, json["mqtt_server"]);
-//                   if (json.containsKey("mqtt_port"))    strcpy(mqttPort, json["mqtt_port"]);
-//                   if (json.containsKey("topLED"))  strcpy(topLED, json["topLED"]);
-//                   if (json.containsKey("bottomLED"))  strcpy(bottomLED, json["bottomLED"]);
-//                   if (json.containsKey("NoaaStation")) strcpy(NoaaStation, json["NoaaStation"]);
-//                 }
-//                 else
-//                 {
-//                     console.println("failed to load json config");
-//                 }
-//             }
-//         }
-//     }
-//     else
-//     {
-//         console.println("failed to mount FS");
-//     }
-//     // end read
-// }
 void readPreferences() {
   if (prefs.isKey("deviceLocation"))     strcpy(deviceLocation, prefs.getString("deviceLocation").c_str());
   if (prefs.isKey("mqtt_server"))    strcpy(mqttServer, prefs.getString("mqtt_server").c_str());
@@ -225,32 +163,10 @@ void readPreferences() {
 /*
  * ********************************************************************************
 
- updates the configuration in config.json in the file system
+ updates the configuration nvm
 
  * ********************************************************************************
 */
-// void writeConfigToDisk()
-// {
-//     if (debugMode) console.println("saving config");
-//     DynamicJsonDocument json(1024);
-//     json["deviceLocation"] = deviceLocation;
-//     json["mqtt_server"] = mqttServer;
-//     json["mqtt_port"] = mqttPort;
-//     json["topLED"] = topLED;
-//     json["bottomLED"] = bottomLED;
-//     json["NoaaStation"] = NoaaStation;
-
-//     File configFile = SPIFFS.open("/config.json", "w");
-//     if (!configFile)
-//     {
-//         console.println("failed to open config file for writing");
-//     }
-
-//     serializeJson(json, Serial);
-//     serializeJson(json, configFile);
-//     configFile.close();
-//     // end save
-// }
 
 void savePreferences()
 {
